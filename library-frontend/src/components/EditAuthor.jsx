@@ -1,0 +1,55 @@
+import { gql, useMutation } from '@apollo/client'
+import { useState } from 'react'
+
+const CHANGE_AUTHOR = gql(`
+  mutation changeAuthor($name: String!, $setBornTo: Int!) {
+    editAuthor(
+      name: $name
+      setBornTo: $setBornTo
+    ) {
+      name
+      born
+    }   
+  }
+`)
+
+const EditAuthor = (props) => {
+  const [author, setAuthor] = useState('')
+  const [born, setBorn] = useState('')
+  const [ changeAuthor ] = useMutation(CHANGE_AUTHOR)
+  
+
+  const submit = async (event) => {
+    event.preventDefault()
+
+    changeAuthor({ variables: { name: author, setBornTo: Number(born) }})
+
+    setAuthor('')
+    setBorn('')
+  }
+
+  if(!props.authors) {
+    return null
+  }
+
+  return (
+    <div>
+      <form onSubmit={submit}>
+        <select onChange={({ target }) => setAuthor(target.value)} >
+          {props.authors.map(author => <option key={author.id} value={author.name}>{author.name}</option>)}
+        </select>
+        <div>
+          born 
+          <input
+            type="number"
+            value={born}
+            onChange={({ target }) => setBorn(target.value)}
+          />
+        </div>
+        <button type="submit">update author</button>
+      </form>
+    </div>
+  )
+}
+
+export default EditAuthor  
