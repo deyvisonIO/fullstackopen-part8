@@ -5,7 +5,7 @@
   "main": "library-backend.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "run": ""
+    "dev": "nodemon library-backend.js"
   },
   "author": "",
   "license": "ISC",
@@ -15,6 +15,7 @@
     "graphql": "^16.9.0",
     "mongoose": "^8.7.1",
     "mongoose-unique-validator": "^4.0.1",
+    "nodemon": "^3.1.7",
     "uuid": "^10.0.0"
   }
 }

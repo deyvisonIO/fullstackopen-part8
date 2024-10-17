@@ -67,22 +67,22 @@ const resolvers = {
       if (args.author && args.genre) {
         const booksByAuthorWithGenre = await Book.find({
           author: { name: args.author },
-          genre: args.genre,
-        });
+          genres: args.genre,
+    }).populate("author");
         return booksByAuthorWithGenre;
       }
       if (args.author) {
         const booksByAuthor = await Book.find({
           author: { name: args.author },
-        });
+        }).populate("author");
         return booksByAuthor;
       }
 
       if (args.genre) {
-        const booksWithGenre = await Book.find({ genre: args.genre });
+        const booksWithGenre = await Book.find({ genres: args.genre }).populate("author");
         return booksWithGenre;
       }
-      return Book.find({});
+      return Book.find({}).populate("author");
     },
     authorCount: async () => Author.collection.countDocuments(),
     allAuthors: async () => {
@@ -106,18 +106,18 @@ const resolvers = {
           },
         });
       }
-      const isAuthorInDatabase = await Author.findOne({ name: book.author });
 
       const book = new Book({ ...args });
 
       try {
+        const isAuthorInDatabase = await Author.findOne({ name: args.author });
+
         if (isAuthorInDatabase) {
-          const author = await findOne({ name: args.author })
-          book.author = author.id
+          book.author = isAuthorInDatabase._id
         } else {
-          const author = new Author({ name: book.author });
+          const author = new Author({ name: args.author });
           await author.save();
-          book.author = author.id
+          book.author = author._id
         }
       } catch (error) {
         throw new GraphQLError("Saving book's author failed", {
@@ -126,15 +126,15 @@ const resolvers = {
       }
 
       try {
-        book.save()
+        await book.save()
       } catch (error) {
         throw new GraphQLError("Saving book failed", {
           extensions: { code: "BAD_USER_INPUT", invalidArgs: args.name, error },
         });
       }
+  
+      return Book.findById(book._id).populate("author")
 
-
-      return book;
     },
     editAuthor: async (root, args) => {
       const author = await Author.findOne({ name: args.name });
