@@ -11,7 +11,9 @@ const CREATE_BOOK = gql(`
     ) {
       title
       published
-      author
+      author {
+        name
+      }
       genres
       id
     }   
@@ -24,7 +26,13 @@ const NewBook = (props) => {
   const [published, setPublished] = useState('')
   const [genre, setGenre] = useState('')
   const [genres, setGenres] = useState([])
-  const [ createBook ] = useMutation(CREATE_BOOK)
+  const [ createBook ] = useMutation(CREATE_BOOK, {
+    context: {
+      headers: {
+        "Authorization": "Bearer " + props.token
+      }
+    }
+  })
  
   if (!props.show) {
     return null

@@ -14,13 +14,22 @@ const CHANGE_AUTHOR = gql(`
 `)
 
 const EditAuthor = (props) => {
-  const [author, setAuthor] = useState('')
+  const [author, setAuthor] = useState(props.authors[0].name || '')
   const [born, setBorn] = useState('')
-  const [ changeAuthor ] = useMutation(CHANGE_AUTHOR)
+  const [ changeAuthor ] = useMutation(CHANGE_AUTHOR, {
+    context: {
+      headers: {
+        "Authorization": "Bearer " + props.token,
+      }
+    }
+  })
   
 
   const submit = async (event) => {
     event.preventDefault()
+
+    console.log("author:",author);
+    console.log("born:",born)
 
     changeAuthor({ variables: { name: author, setBornTo: Number(born) }})
 

@@ -1,28 +1,46 @@
 import { gql, useQuery } from "@apollo/client"
+import { useState } from "react"
 
 const GET_BOOKS = gql(`
   query getBooks {
     allBooks {
+      genres
+    }
+  }
+`)
+
+const GET_BOOKS_BY_GENRE = gql(`
+  query getBooks($genre: String) {
+    allBooks(genre: $genre) {
       title
-      author
+      author {
+        name
+      }
       published
+      genres
     }
   }
 `)
 
 const Books = (props) => {
-  const { loading, error, data } = useQuery(GET_BOOKS, {
-    pollInterval: 2000
+  const [genreFilter, setGenreFilter] = useState("")
+  const { loading: loadingAllBooks, error: errorAllBooks, data: allBooks, refetch: refetchGenres } = useQuery(GET_BOOKS)
+  const { loading: loadingFilteredBooks, error: errorFilteredBooks, data: filteredBooks } = useQuery(GET_BOOKS_BY_GENRE, {
+    variables: { genre: genreFilter }
   })
 
   if (!props.show) {
     return null
   }
 
-  if(loading) return <p>loading...</p>
-  if(error) return <p>Error: {error.message}</p>
+  if(loadingAllBooks || loadingFilteredBooks) return <p>loading...</p>
+  if(errorAllBooks || errorFilteredBooks) return <p>Error: {errorAllBooks?.message || errorFilteredBooks?.message}</p>
 
-  const books = data?.allBooks;
+
+  const books = filteredBooks?.allBooks;
+  const genres = [...new Set(allBooks.allBooks.map(book => book.genres).flat(Infinity))]
+
+  console.log(books)
 
   return (
     <div>
@@ -38,12 +56,22 @@ const Books = (props) => {
           {books.map((a) => (
             <tr key={a.title}>
               <td>{a.title}</td>
-              <td>{a.author}</td>
+              <td>{a.author.name}</td>
               <td>{a.published}</td>
             </tr>
           ))}
         </tbody>
       </table>
+      <div>
+        {genres.map(genre => <button key={genre} onClick={() => {
+          setGenreFilter(genre)
+          refetchGenres()
+        }}>{genre}</button>)}
+        <button onClick={() => {
+          setGenreFilter("")
+          refetchGenres()
+        }}>all genres</button>
+      </div>
     </div>
   )
 }

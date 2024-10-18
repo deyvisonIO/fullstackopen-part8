@@ -4,6 +4,7 @@ import EditAuthor from "./EditAuthor"
 const GET_AUTHORS = gql(`
   query getAuthors {
     allAuthors {
+      id
       name 
       born 
       bookCount 
@@ -13,7 +14,7 @@ const GET_AUTHORS = gql(`
 
 const Authors = (props) => {
   const { loading, error, data } = useQuery(GET_AUTHORS, {
-    pollInterval: 3000
+    pollInterval: 3000,
   })
   if (!props.show) {
     return null
@@ -45,9 +46,13 @@ const Authors = (props) => {
         </tbody>
       </table>
 
+      {props.token && 
+        <div>
+          <h2>set birthyear</h2>
+          <EditAuthor authors={authors} token={props.token} />
+        </div>
+      }
 
-      <h2>set birthyear</h2>
-      <EditAuthor authors={authors}/>
     </div>
   )
 }
