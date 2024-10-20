@@ -4,9 +4,32 @@ import Books from "./components/Books";
 import NewBook from "./components/NewBook";
 import Login from "./components/Login";
 
+import { useQuery, useMutation, useSubscription } from "@apollo/client";
+import { BOOK_ADDED, GET_BOOKS } from "./queries"
+
 const App = () => {
   const [page, setPage] = useState("authors");
   const [token, setToken] = useState(null);
+  const [notification, setNotification] = useState(null)
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data, client}) => {
+      const addedBook = data.data.bookAdded;
+
+      notify(`${addedBook.title} added`)
+
+      client.cache.updateQuery({query: GET_BOOKS }, ({ allBooks }) => {
+        return {
+          allBooks: allBooks.concat(addedBook)
+        }
+      })
+    }
+  })
+
+  function notify(notification) {
+    setNotification(notification)
+    setTimeout(() => setNotification(null), 5000)
+  }
 
 
   return (
@@ -18,6 +41,8 @@ const App = () => {
         {token && <button onClick={() => setPage("add")}>add book</button>}
         {token && <button onClick={() => setToken(null)}>logout</button>}
       </div>
+
+      <Notify notification={notification}/>
 
       <Authors show={page === "authors"} token={token} />
 

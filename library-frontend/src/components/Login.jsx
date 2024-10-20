@@ -1,14 +1,7 @@
-import { gql, useMutation } from "@apollo/client"
+import { useMutation } from "@apollo/client"
 import Notify from "./Notify"
 import { useState } from "react"
-
-const LOGIN = gql(`
-  mutation getToken($username: String!, $password: String!) {
-    login(username: $username, password: $password) {
-      value 
-    }
-  }
-`)
+import { LOGIN } from "../queries"
 
 
 const Login = (props) => {
