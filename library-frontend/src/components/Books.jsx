@@ -21,6 +21,7 @@ const Books = (props) => {
   const genres = [...new Set(allBooks.allBooks.map(book => book.genres).flat(Infinity))]
 
   console.log(books)
+  console.log(genres)
 
   return (
     <div>

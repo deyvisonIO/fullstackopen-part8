@@ -25,6 +25,7 @@ const Login = (props) => {
       const response = await getToken({ variables: { username: name, password }})
       
       props.setToken(response.data.login.value)
+      localStorage.setItem('user-token', response.data.login.value)
       props.setPage("authors")
     } catch (error) {
       setNotification(error.message)
